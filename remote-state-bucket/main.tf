@@ -15,6 +15,7 @@ provider "aws" {
 
 resource "aws_s3_bucket" "kt-terraform" {
   bucket = "kt-terraform-luis"
+  force_destroy = true
 
   versioning {
     enabled = true
