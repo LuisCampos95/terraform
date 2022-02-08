@@ -1,9 +1,14 @@
-resource "aws_instance" "web" {
-  ami           = var.ami
-  instance_type = var.instance_type
+# resource "aws_instance" "web" {
+#   ami             = var.ami
+#   instance_type   = var.instance_type
+#   tags = {
+#     Name = "EC2 com nginx"
+#   }
 
-  tags = {
-    Name = "Remote State"
-    Env  = "dev"
-  }
-}
+#   user_data = <<EOF
+#     #!/bin/bash
+#     sudo apt-get -y update
+#     sudo apt-get -y install nginx
+#     sudo service nginx start
+#                 EOF
+# }
