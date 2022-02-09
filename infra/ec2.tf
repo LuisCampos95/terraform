@@ -3,7 +3,7 @@ resource "aws_key_pair" "my_key" {
   public_key = file(pathexpand("~/.ssh/id_rsa.pub"))
 }
 
-resource "aws_instance" "ec2" {
+resource "aws_instance" "this" {
   ami                         = var.ami
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.my_key.key_name
@@ -11,5 +11,5 @@ resource "aws_instance" "ec2" {
   subnet_id                   = aws_subnet.this["sub_a"].id
   tags                        = merge(local.common_tags, { Name = "Nginx Instance" })
   associate_public_ip_address = true
-  user_data                   = file("nginx.sh")
+  user_data                   = "${filebase64("nginx.sh")}"
 }
