@@ -10,6 +10,6 @@ output "subnet_ids" {
   value = { for k, v in aws_subnet.this : v.tags.Name => v.id }
 }
 
-output "route_table_id" {
-  value = aws_route_table.this.id
-}
+# output "route_table_id" {
+#   value = aws_route_table.this.id
+# }

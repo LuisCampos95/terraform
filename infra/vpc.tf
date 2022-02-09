@@ -21,8 +21,8 @@ resource "aws_subnet" "this" {
   tags              = merge(local.common_tags, { Name = each.value[2] })
 }
 
-resource "aws_route_table" "this" {
-  vpc_id            = aws_vpc.this.id
+resource "aws_default_route_table" "this" {
+  default_route_table_id = aws_vpc.this.default_route_table_id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -36,5 +36,5 @@ resource "aws_route_table_association" "this" {
   for_each = local.subnet_ids
 
   subnet_id      = each.value
-  route_table_id = aws_route_table.this.id
+  route_table_id = aws_default_route_table.this.id
 }
