@@ -1,4 +1,5 @@
-#! /bin/bash
-"sudo apt-get install -y nginx"
-"sudo systemctl enable nginx"
-"sudo systemctl start nginx"
+#!/bin/bash
+sudo yum install nginx -y
+sudo systemctl enable nginx
+sudo service nginx start
+sudo service nginx status

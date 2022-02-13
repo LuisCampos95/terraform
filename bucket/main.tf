@@ -13,14 +13,15 @@ provider "aws" {
   profile = var.aws_profile
 }
 
+# Criação do Bucket S3
 resource "aws_s3_bucket" "kt-terraform" {
-  bucket = "kt-terraform-luis"
-  force_destroy = true
+  bucket = "kt-terraform-luis" #Nome do Bucket
 
+  # Habilitando o versionamento
   versioning {
     enabled = true
   }
-
+  # Tags do Bucket
   tags = {
     Description = "Armazenamento do arquivo do terraform.tfstate"
     ManagedBy   = "Terraform"

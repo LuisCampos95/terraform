@@ -9,4 +9,3 @@ variable "aws_profile" {
   description = ""
   default     = "luis"
 }
-
