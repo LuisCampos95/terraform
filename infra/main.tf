@@ -6,7 +6,7 @@ terraform {
       version = "3.23.0"
     }
   }
-
+  # Criação do backend do bucket S3
   backend "s3" {
     bucket  = "kt-terraform-luis"
     key     = "kt/repositorio/terraform.tfstate"

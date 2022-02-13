@@ -1,3 +1,4 @@
+# Saídas a serem visualizadas nos logs
 output "vpc_id" {
   value = aws_vpc.vpc.id
 }
