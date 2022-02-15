@@ -1,5 +1,5 @@
 <h1 align="center">
-    <a href="https://pt-br.reactjs.org/">☁️ KT Terraform</a>
+    <a>☁️ KT Terraform</a>
 </h1>
 <p align="center">🚀 Automação de serviços da AWS via Terraform.</p>
 
@@ -15,13 +15,21 @@
 
 **Arquitetura da Automação:**
 
-Para realizar a proposta de automação foi desenvolvido o sistema abaixo:
+Para realizar a proposta de automação foi desenvolvido primeiramente o sistema abaixo com um bucket S3 para servir de repositório para o terraform.tfstate.
 
 <p align="center">
-  <img <img src="arquitetura.png">
+  <img <img src="arquitetura_bucket.png">
 </p>
 
+O Terraform armazena o estado de sua infraestrutura e configurações gerenciadas. Esse estado é usado pelo Terraform para mapear recursos do mundo real para sua configuração, acompanhar metadados e melhorar o desempenho de grandes infraestruturas.
+
+Esse estado é armazenado por padrão em um arquivo local chamado **terraform.tfstate**, mas também pode ser armazenado remotamente, o que funciona melhor em um ambiente de equipe.
+
+Os códigos abaixo demonstram a criação de um bucket que irá realizar o armazenamento remoto do arquivo terraform.tfstate.
+
 <details><summary>Bucket S3</summary>
+
+Primeiramente é necessário criar o bucket que irá armazenar o arquivo no **bucket/main.tf**.
 
 ```js
 resource "aws_s3_bucket" "kt-terraform" {
@@ -41,7 +49,7 @@ resource "aws_s3_bucket" "kt-terraform" {
 }
 
 ```
-testee
+No arquivo infra/main.tf é criado o backend que irá popular o bucket S3.
 
 ```js
 terraform {
@@ -63,6 +71,14 @@ terraform {
 ```
 
 </details>
+
+<p></p> Para realizar a automação foi desenvolvido também o sistema abaixo:<p></p>
+
+
+<p align="center">
+  <img <img src="arquitetura_infra.png">
+</p>
+
 
 <details><summary>VPC</summary>
 
@@ -91,7 +107,8 @@ resource "aws_subnet" "subnet" {
 }
 ```
 </details>
-
+<p></p>
+Foi desenvolvido um Internet Gateway para permitir a comunicação entre a VPC e a internet.<p></p>
 <details><summary>Internet Gateway</summary>
 
 ```js
@@ -134,6 +151,36 @@ resource "aws_security_group" "sg" {
 }
 ```
 </details>
+<p></p>
+Foi criado um Route Table com um conjunto de rotas que são utilizadas para determinar para onde o tráfego de rede da sua subnet ou gateway é direcionado.<p></p>
+
+<details><summary>Route Table</summary>
+
+```js
+resource "aws_default_route_table" "route_table" {
+  default_route_table_id = aws_vpc.vpc.default_route_table_id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igtw.id
+  }
+
+  tags = merge(local.common_tags, { Name = "Terraform Route Table" })
+}
+```
+
+```js
+resource "aws_route_table_association" "association" {
+  for_each = local.subnet_ids
+
+  subnet_id      = each.value
+  route_table_id = aws_default_route_table.route_table.id
+}
+```
+</details>
+
+<p></p>
+Foi criado uma EC2 e instalado um nginx que está disponível na porta 80.<p></p>
 
 <details><summary>EC2 com nginx (Modularizado)</summary>
 
