@@ -15,19 +15,23 @@
 
 **Arquitetura da Automação:**
 
-<img src="arquitetura.png">
+Para realizar a proposta de automação foi desenvolvido o sistema abaixo:
+
+<p align="center">
+  <img <img src="arquitetura.png">
+</p>
 
 <details><summary>Bucket S3</summary>
 
 ```js
 resource "aws_s3_bucket" "kt-terraform" {
-  bucket = "kt-terraform-luis" #Nome do Bucket
+  bucket = "kt-terraform-luis" 
 
-  # Habilitando o versionamento
+  
   versioning {
     enabled = true
   }
-  # Tags do Bucket
+  
   tags = {
     Description = "Armazenamento do arquivo do terraform.tfstate"
     ManagedBy   = "Terraform"
@@ -48,7 +52,7 @@ terraform {
       version = "3.23.0"
     }
   }
-  # Criação do backend do bucket S3
+  
   backend "s3" {
     bucket  = "kt-terraform-luis"
     key     = "kt/repositorio/terraform.tfstate"

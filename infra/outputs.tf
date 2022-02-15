@@ -11,6 +11,6 @@ output "subnet_ids" {
   value = { for k, v in aws_subnet.subnet : v.tags.Name => v.id }
 }
 
-output "instance_ips" {
-  value = aws_instance.this.*.public_ip
+output "sg_id" {
+  value = aws_security_group.sg.id
 }

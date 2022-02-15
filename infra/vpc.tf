@@ -19,7 +19,7 @@ resource "aws_subnet" "subnet" {
   }
 
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = each.value[0] 
+  cidr_block        = each.value[0]
   availability_zone = each.value[1]
   tags              = merge(local.common_tags, { Name = each.value[2] })
 }

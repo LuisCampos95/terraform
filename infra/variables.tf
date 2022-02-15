@@ -13,7 +13,7 @@ variable "aws_profile" {
 variable "ami" {
   type        = string
   description = ""
-  default     = "ami-0b0af3577fe5e3532" #AMI Redhat
+  default     = "ami-033b95fb8079dc481" #AMI Redhat
 }
 
 variable "instance_type" {
