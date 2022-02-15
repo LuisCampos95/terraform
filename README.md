@@ -18,7 +18,7 @@
 Para realizar a proposta de automação foi desenvolvido o sistema abaixo:
 
 <p align="center">
-  <img <img src="arquitetura.png"> />
+  <img <img src="arquitetura.png">
 </p>
 
 <details><summary>Bucket S3</summary>

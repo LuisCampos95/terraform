@@ -5,26 +5,23 @@ resource "aws_key_pair" "my_key" {
 }
 
 # Criação da instância EC2 com nginx
-resource "aws_instance" "this" {
+# resource "aws_instance" "this" {
+#   ami                         = var.ami
+#   instance_type               = var.instance_type
+#   key_name                    = aws_key_pair.my_key.key_name
+#   vpc_security_group_ids      = [aws_security_group.sg.id]
+#   subnet_id                   = aws_subnet.subnet["sub_a"].id
+#   tags                        = merge(local.common_tags, { Name = "Nginx Instance" })
+#   associate_public_ip_address = true
+#   user_data                   = filebase64("nginx.sh")
+# }
+
+module "aws_instance_ec2" {
+  source                      = "./module_ec2"
   ami                         = var.ami
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.my_key.key_name
   vpc_security_group_ids      = [aws_security_group.sg.id]
   subnet_id                   = aws_subnet.subnet["sub_a"].id
-  tags                        = merge(local.common_tags, { Name = "Nginx Instance" })
-  associate_public_ip_address = true
-  user_data                   = filebase64("nginx.sh")
-}
-
-module "aws_instance" {
-  source                      = "./module_ec2"
-
-  ami                         = var.ami
-  instance_type               = var.instance_type
-  key_name                    = var.key_name
-  vpc_security_group_ids      = [aws_security_group.sg.id]
-  subnet_id                   = aws_subnet.subnet["sub_a"].id
-  tags                        = merge(local.common_tags, { Name = "Nginx Instance" })
-  associate_public_ip_address = true
-  user_data                   = filebase64("nginx.sh")
+  user_data                   = file("nginx.sh")
 }
