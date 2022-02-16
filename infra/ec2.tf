@@ -4,6 +4,7 @@ resource "aws_key_pair" "my_key" {
   public_key = file(pathexpand("~/.ssh/id_rsa.pub"))
 }
 
+# Criação do EC2 com nginx modularizado
 module "aws_instance_ec2" {
   source                 = "./module_ec2"
   ami                    = var.ami
