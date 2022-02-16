@@ -49,7 +49,7 @@ resource "aws_s3_bucket" "kt-terraform" {
 }
 
 ```
-No arquivo infra/main.tf é criado o backend que irá popular o bucket S3.
+No arquivo **infra/main.tf** é criado o backend que irá popular o bucket S3.
 
 ```js
 terraform {
@@ -72,13 +72,14 @@ terraform {
 
 </details>
 
-<p></p> Para realizar a automação foi desenvolvido também o sistema abaixo:<p></p>
+<p></p> Para realizar a automação de toda a infraestrutura foi desenvolvido também o sistema abaixo:<p></p>
 
 
 <p align="center">
   <img <img src="arquitetura_infra.png">
 </p>
 
+<p></p>Foi desenvolvida uma VPC para permitir iniciar os recursos da AWS em uma rede virtual definida via código.<p></p>
 
 <details><summary>VPC</summary>
 
@@ -89,6 +90,8 @@ resource "aws_vpc" "vpc" {
 }
 ```
 </details>
+
+<p></p>Foram desenvolvidas três subnets, uma em cada zona de disponibilidade da região us-east-1.<p></p>
 
 <details><summary>Subnet</summary>
 
@@ -107,8 +110,7 @@ resource "aws_subnet" "subnet" {
 }
 ```
 </details>
-<p></p>
-Foi desenvolvido um Internet Gateway para permitir a comunicação entre a VPC e a internet.<p></p>
+<p></p>Foi desenvolvido um Internet Gateway para permitir a comunicação entre a VPC e a internet.<p></p>
 <details><summary>Internet Gateway</summary>
 
 ```js
@@ -118,6 +120,8 @@ resource "aws_internet_gateway" "igtw" {
 }
 ```
 </details>
+
+<p></p>Foi desenvolvido um Security Group para controlar o tráfego de entrada e de saída da instância EC2, com regras de acesso nas portas 80 e 22.<p></p>
 
 <details><summary>Security Group</summary>
 
@@ -152,7 +156,7 @@ resource "aws_security_group" "sg" {
 ```
 </details>
 <p></p>
-Foi criado um Route Table com um conjunto de rotas que são utilizadas para determinar para onde o tráfego de rede da sua subnet ou gateway é direcionado.<p></p>
+Foi criado um Route Table com um conjunto de rotas que são utilizadas para determinar para onde o tráfego de rede da subnet ou gateway é direcionado.<p></p>
 
 <details><summary>Route Table</summary>
 
@@ -168,6 +172,7 @@ resource "aws_default_route_table" "route_table" {
   tags = merge(local.common_tags, { Name = "Terraform Route Table" })
 }
 ```
+<p></p>Para realizar a associação do Route Table com as três subnets foi desenvolvido o código abaixo..<p></p>
 
 ```js
 resource "aws_route_table_association" "association" {
@@ -180,7 +185,7 @@ resource "aws_route_table_association" "association" {
 </details>
 
 <p></p>
-Foi criado uma EC2 e instalado um nginx que está disponível na porta 80.<p></p>
+Foi desenvolvido uma EC2 e instalado um nginx que está disponível na porta 80.<p></p>
 
 <details><summary>EC2 com nginx (Modularizado)</summary>
 

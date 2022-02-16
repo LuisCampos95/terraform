@@ -14,3 +14,10 @@ output "subnet_ids" {
 output "sg_id" {
   value = aws_security_group.sg.id
 }
+
+output "public_ip" {
+  value = module.aws_instance_ec2.public_ip
+  depends_on = [
+    module.aws_instance_ec2
+  ]
+}
