@@ -18,7 +18,7 @@
 Para realizar a proposta de automação foi desenvolvido primeiramente o sistema abaixo com um bucket S3 para servir de repositório para o terraform.tfstate.
 
 <p align="center">
-  <img <img src="arquitetura_bucket.png">
+  <img <img src="/imagens/arquitetura_bucket.png">
 </p>
 
 O Terraform armazena o estado de sua infraestrutura e configurações gerenciadas. Esse estado é usado pelo Terraform para mapear recursos do mundo real para sua configuração, acompanhar metadados e melhorar o desempenho de grandes infraestruturas.
@@ -76,7 +76,11 @@ terraform {
 
 
 <p align="center">
-  <img <img src="arquitetura_infra.png">
+  <img <img src="/imagens/arquitetura_infra.png">
+</p>
+
+<p align="center">
+  <img <img src="/imagens/nginx.png">
 </p>
 
 <p></p>Foi desenvolvida uma VPC para permitir iniciar os recursos da AWS em uma rede virtual definida via código.<p></p>
