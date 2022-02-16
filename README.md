@@ -79,11 +79,9 @@ terraform {
   <img <img src="/imagens/arquitetura_infra.png">
 </p>
 
-<p align="center">
-  <img <img src="/imagens/nginx.png">
-</p>
+Para essa segunda parte da automação foi criada uma instância EC2 com um nginx instalado em uma das subnets disponíveis.<p></p> 
 
-<p></p>Foi desenvolvida uma VPC para permitir iniciar os recursos da AWS em uma rede virtual definida via código.<p></p>
+* Foi desenvolvida uma VPC para permitir iniciar os recursos da AWS em uma rede virtual definida via código.<p></p>
 
 <details><summary>VPC</summary>
 
@@ -93,9 +91,9 @@ resource "aws_vpc" "vpc" {
   tags       = merge(local.common_tags, { Name = "Terraform VPC" })
 }
 ```
-</details>
+</details><p></p>
 
-<p></p>Foram desenvolvidas três subnets, uma em cada zona de disponibilidade da região us-east-1.<p></p>
+* Foram desenvolvidas três subnets, uma em cada zona de disponibilidade da região us-east-1.<p></p>
 
 <details><summary>Subnet</summary>
 
@@ -113,8 +111,9 @@ resource "aws_subnet" "subnet" {
   tags              = merge(local.common_tags, { Name = each.value[2] })
 }
 ```
-</details>
-<p></p>Foi desenvolvido um Internet Gateway para permitir a comunicação entre a VPC e a internet.<p></p>
+</details><p></p>
+
+* Foi desenvolvido um Internet Gateway para permitir a comunicação entre a VPC e a internet.<p></p>
 <details><summary>Internet Gateway</summary>
 
 ```js
@@ -123,9 +122,9 @@ resource "aws_internet_gateway" "igtw" {
   tags   = merge(local.common_tags, { Name = "Terraform IGW" })
 }
 ```
-</details>
+</details><p></p>
 
-<p></p>Foi desenvolvido um Security Group para controlar o tráfego de entrada e de saída da instância EC2, com regras de acesso nas portas 80 e 22.<p></p>
+* Foi desenvolvido um Security Group para controlar o tráfego de entrada e de saída da instância EC2, com regras de acesso nas portas 80 e 22.<p></p>
 
 <details><summary>Security Group</summary>
 
@@ -158,9 +157,9 @@ resource "aws_security_group" "sg" {
   }
 }
 ```
-</details>
-<p></p>
-Foi criado um Route Table com um conjunto de rotas que são utilizadas para determinar para onde o tráfego de rede da subnet ou gateway é direcionado.<p></p>
+</details><p></p>
+
+* Foi criado um Route Table com um conjunto de rotas que são utilizadas para determinar para onde o tráfego de rede da subnet ou gateway é direcionado.<p></p>
 
 <details><summary>Route Table</summary>
 
@@ -176,7 +175,9 @@ resource "aws_default_route_table" "route_table" {
   tags = merge(local.common_tags, { Name = "Terraform Route Table" })
 }
 ```
-<p></p>Para realizar a associação do Route Table com as três subnets foi desenvolvido o código abaixo..<p></p>
+<p></p>
+
+* Para realizar a associação do Route Table com as três subnets foi desenvolvido o código abaixo..<p></p>
 
 ```js
 resource "aws_route_table_association" "association" {
@@ -186,10 +187,9 @@ resource "aws_route_table_association" "association" {
   route_table_id = aws_default_route_table.route_table.id
 }
 ```
-</details>
+</details><p></p>
 
-<p></p>
-Foi desenvolvido uma EC2 e instalado um nginx que está disponível na porta 80.<p></p>
+* Foi desenvolvido uma EC2 e instalado um nginx que está disponível na porta 80.<p></p>
 
 <details><summary>EC2 com nginx (Modularizado)</summary>
 
@@ -206,3 +206,9 @@ resource "aws_instance" "this" {
 }
 ```
 </details>
+<p></p>
+##### Abaixo é demonstrado o nginx em funcionamento após toda a infra ser executada.
+
+<p align="center">
+  <img <img src="/imagens/nginx.png">
+</p>
