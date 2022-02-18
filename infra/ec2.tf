@@ -1,6 +1,6 @@
 # Criação da key pair
 resource "aws_key_pair" "my_key" {
-  key_name   = "key teste"
+  key_name = "aws_key"
   public_key = file(pathexpand("~/.ssh/id_rsa.pub"))
 }
 
