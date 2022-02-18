@@ -207,6 +207,7 @@ resource "aws_instance" "this" {
 ```
 </details>
 <p></p>
+
 ##### Abaixo é demonstrado o nginx em funcionamento após toda a infra ser executada.
 
 <p align="center">
