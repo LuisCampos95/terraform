@@ -35,6 +35,7 @@ variable "tags" {
     CreatedAt = "2022-02-05"
     ManagedBy = "Terraform"
     Owner     = "Luis Campos"
+    Name      = "nginx_instance"
   }
 }
 
