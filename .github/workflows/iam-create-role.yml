@@ -1,0 +1,89 @@
+name: IAM Create Role (Reusable)
+
+# Workflow reutilizável chamado por outros repositórios.
+# Fluxo: novo repo tem .github/aws-permissions.yml → chama este workflow →
+# o YAML é copiado para iam/repo-permissions/ → PR é aberto → merge dispara iam-sync.yml
+on:
+  workflow_call:
+    inputs:
+      repo_name:
+        description: "Nome completo do repo chamador (ex: minha-empresa/meu-repo)"
+        required: true
+        type: string
+    secrets:
+      IAM_WORKFLOW_TOKEN:
+        description: "GitHub token com permissão de criar PRs neste repo terraform"
+        required: true
+
+jobs:
+  register-permissions:
+    name: "Registrar permissões do repositório"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repo terraform (IaC central)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/terraform
+          token: ${{ secrets.IAM_WORKFLOW_TOKEN }}
+
+      - name: Checkout do repo que chamou o workflow
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repo_name }}
+          path: caller-repo
+          token: ${{ secrets.IAM_WORKFLOW_TOKEN }}
+
+      - name: Verificar se .github/aws-permissions.yml existe no repo chamador
+        id: check
+        run: |
+          if [ -f "caller-repo/.github/aws-permissions.yml" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "::error::Arquivo .github/aws-permissions.yml não encontrado em ${{ inputs.repo_name }}"
+            exit 1
+          fi
+
+      - name: Validar YAML de permissões
+        run: |
+          python3 - <<'EOF'
+          import yaml, sys
+
+          with open("caller-repo/.github/aws-permissions.yml") as f:
+              config = yaml.safe_load(f)
+
+          assert "repo" in config, "Campo 'repo' obrigatório"
+          assert "permissions" in config, "Campo 'permissions' obrigatório"
+          assert config["repo"] == "${{ inputs.repo_name }}", \
+              f"Campo 'repo' deve ser '${{ inputs.repo_name }}', encontrado: {config['repo']}"
+
+          for i, perm in enumerate(config["permissions"]):
+              assert "actions" in perm, f"permissions[{i}] sem campo 'actions'"
+              assert "resources" in perm, f"permissions[{i}] sem campo 'resources'"
+              for action in perm["actions"]:
+                  assert not action.endswith(":*"), \
+                      f"Wildcard de actions não permitido: '{action}' em permissions[{i}]"
+
+          print("Validação OK")
+          EOF
+
+      - name: Copiar YAML para iam/repo-permissions/
+        run: |
+          SAFE_NAME=$(echo "${{ inputs.repo_name }}" | tr '/' '-')
+          cp caller-repo/.github/aws-permissions.yml "iam/repo-permissions/${SAFE_NAME}.yml"
+          echo "Arquivo criado: iam/repo-permissions/${SAFE_NAME}.yml"
+
+      - name: Criar Pull Request com as novas permissões
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.IAM_WORKFLOW_TOKEN }}
+          branch: "iam/add-${{ github.event.inputs.repo_name || inputs.repo_name }}"
+          commit-message: "iam: add permissions for ${{ inputs.repo_name }}"
+          title: "iam: adicionar permissões para ${{ inputs.repo_name }}"
+          body: |
+            Adicionado automaticamente pelo workflow de `${{ inputs.repo_name }}`.
+
+            Revisar as permissões solicitadas antes de fazer merge.
+            Após o merge, o workflow `iam-sync.yml` cria a IAM Role automaticamente.
+          labels: iam,automated

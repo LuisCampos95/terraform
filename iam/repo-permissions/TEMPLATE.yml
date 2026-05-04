@@ -1,0 +1,34 @@
+# TEMPLATE — copie este arquivo para .github/aws-permissions.yml no seu repositório.
+# Preencha com as permissões reais necessárias. Não use wildcards em 'actions'.
+#
+# Para actions que a AWS obriga resource: "*" (ex: ec2:Describe*, sts:GetCallerIdentity),
+# use resources: ["*"] com um comentário explicando o motivo.
+
+repo: "minha-empresa/meu-repo"   # obrigatório: nome exato do seu repositório
+
+permissions:
+  # Exemplo: acesso a um bucket S3 específico
+  - sid: "S3MeuBucket"
+    actions:
+      - "s3:GetObject"
+      - "s3:PutObject"
+      - "s3:DeleteObject"
+      - "s3:ListBucket"
+    resources:
+      - "arn:aws:s3:::nome-do-meu-bucket"
+      - "arn:aws:s3:::nome-do-meu-bucket/*"
+
+  # Exemplo: leitura de segredos no Secrets Manager
+  # - sid: "SecretsManager"
+  #   actions:
+  #     - "secretsmanager:GetSecretValue"
+  #   resources:
+  #     - "arn:aws:secretsmanager:us-east-1:123456789012:secret:meu-app/*"
+
+  # Exemplo: Describe de EC2 (AWS não suporta resource-level — "*" é obrigatório aqui)
+  # - sid: "EC2Describe"
+  #   actions:
+  #     - "ec2:DescribeInstances"
+  #     - "ec2:DescribeSecurityGroups"
+  #   resources:
+  #     - "*"  # AWS limitation: Describe actions do not support resource-level permissions

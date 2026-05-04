@@ -1,0 +1,57 @@
+name: IAM Sync
+
+# Dispara automaticamente quando um YAML de permissão é adicionado ou alterado na main.
+# Também pode ser disparado manualmente via workflow_dispatch.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "iam/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # necessário para OIDC
+  contents: read
+
+env:
+  TF_VAR_github_org: ${{ github.repository_owner }}
+  TF_VAR_oidc_provider_arn: ${{ secrets.AWS_OIDC_PROVIDER_ARN }}
+  TF_VAR_aws_region: "us-east-1"
+
+jobs:
+  terraform:
+    name: "Terraform Apply — IAM Roles"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Usa a bootstrap role (criada uma única vez manualmente) para rodar o Terraform
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_BOOTSTRAP_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.7"
+
+      - name: Terraform Init
+        working-directory: iam
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: iam
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: iam
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: iam
+        run: terraform apply -auto-approve tfplan
