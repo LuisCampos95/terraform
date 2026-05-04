@@ -1,0 +1,32 @@
+# Template: data
+# Repos de pipelines de dados — acesso a S3 de dados e execução no Glue/Athena.
+# Gerenciado pelo time de plataforma. Developers NÃO editam este arquivo.
+
+permissions:
+  - sid: "S3DataLake"
+    actions:
+      - "s3:GetObject"
+      - "s3:PutObject"
+      - "s3:DeleteObject"
+      - "s3:ListBucket"
+    resources:
+      - "arn:aws:s3:::data-lake-*"
+      - "arn:aws:s3:::data-lake-*/*"
+
+  - sid: "GlueJobs"
+    actions:
+      - "glue:StartJobRun"
+      - "glue:GetJobRun"
+      - "glue:GetJobRuns"
+      - "glue:BatchStopJobRun"
+    resources:
+      - "arn:aws:glue:us-east-1:*:job/*"
+
+  - sid: "AthenaQuery"
+    actions:
+      - "athena:StartQueryExecution"
+      - "athena:GetQueryExecution"
+      - "athena:GetQueryResults"
+      - "athena:StopQueryExecution"
+    resources:
+      - "arn:aws:athena:us-east-1:*:workgroup/data-*"

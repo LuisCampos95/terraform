@@ -17,14 +17,17 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Lê todos os arquivos YAML de repo-permissions/ automaticamente.
-# Para adicionar um novo repo, basta criar repo-permissions/<nome>.yml — sem editar este arquivo.
 locals {
+  # Lê o registro central de repos
+  repos = yamldecode(file("${path.module}/repos.yml")).repos
+
+  # Para cada repo, carrega o template de permissões do seu tipo
   repo_configs = {
-    for filename in fileset("${path.module}/repo-permissions", "*.yml") :
-    trimsuffix(filename, ".yml") => yamldecode(
-      file("${path.module}/repo-permissions/${filename}")
-    )
+    for repo in local.repos :
+    repo.name => {
+      repo_name   = repo.name
+      permissions = yamldecode(file("${path.module}/policy-templates/${repo.type}.yml")).permissions
+    }
   }
 }
 
@@ -32,7 +35,7 @@ module "repo_iam" {
   for_each = local.repo_configs
 
   source            = "./module_repo_iam"
-  repo_name         = each.value.repo
+  repo_name         = each.value.repo_name
   github_org        = var.github_org
   oidc_provider_arn = var.oidc_provider_arn
   permissions       = each.value.permissions

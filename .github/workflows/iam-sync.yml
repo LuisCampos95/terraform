@@ -1,17 +1,19 @@
 name: IAM Sync
 
-# Dispara automaticamente quando um YAML de permissão é adicionado ou alterado na main.
-# Também pode ser disparado manualmente via workflow_dispatch.
+# Dispara quando repos.yml ou qualquer policy-template é alterado na main.
+# É chamado também pelo workflow do repo creator após ele atualizar repos.yml.
 on:
   push:
     branches:
       - main
     paths:
-      - "iam/**"
+      - "iam/repos.yml"
+      - "iam/policy-templates/**"
+      - "iam/module_repo_iam/**"
   workflow_dispatch:
 
 permissions:
-  id-token: write   # necessário para OIDC
+  id-token: write
   contents: read
 
 env:
@@ -28,7 +30,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Usa a bootstrap role (criada uma única vez manualmente) para rodar o Terraform
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

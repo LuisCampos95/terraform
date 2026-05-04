@@ -1,0 +1,12 @@
+# Registro central de repositórios e seus tipos de permissão.
+# Este arquivo é atualizado AUTOMATICAMENTE pelo workflow do repo creator.
+# Não editar manualmente.
+#
+# Tipos disponíveis (definidos em policy-templates/):
+#   infra   → EC2 + S3 state backend
+#   backend → S3 assets + Secrets Manager + SSM
+#   data    → S3 data lake + Glue + Athena
+
+repos:
+  - name: "luiscampos95/terraform"
+    type: "infra"

@@ -1,0 +1,29 @@
+# Template: backend
+# Repos de aplicação backend — acesso a S3 de assets e leitura de segredos.
+# Gerenciado pelo time de plataforma. Developers NÃO editam este arquivo.
+
+permissions:
+  - sid: "S3AppAssets"
+    actions:
+      - "s3:GetObject"
+      - "s3:PutObject"
+      - "s3:DeleteObject"
+      - "s3:ListBucket"
+    resources:
+      - "arn:aws:s3:::app-assets-*"
+      - "arn:aws:s3:::app-assets-*/*"
+
+  - sid: "SecretsManagerRead"
+    actions:
+      - "secretsmanager:GetSecretValue"
+      - "secretsmanager:DescribeSecret"
+    resources:
+      - "arn:aws:secretsmanager:us-east-1:*:secret:backend/*"
+
+  - sid: "SSMParameterRead"
+    actions:
+      - "ssm:GetParameter"
+      - "ssm:GetParameters"
+      - "ssm:GetParametersByPath"
+    resources:
+      - "arn:aws:ssm:us-east-1:*:parameter/backend/*"

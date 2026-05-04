@@ -1,0 +1,73 @@
+name: IAM Register Repo
+
+# Chamado pelo repo creator após criar um novo repositório.
+# Adiciona o repo ao repos.yml com o tipo correto — nenhuma ação do developer.
+on:
+  workflow_call:
+    inputs:
+      repo_name:
+        description: "Nome completo do repositório criado (ex: minha-empresa/novo-repo)"
+        required: true
+        type: string
+      repo_type:
+        description: "Tipo do repositório: infra | backend | data"
+        required: true
+        type: string
+    secrets:
+      IAM_WORKFLOW_TOKEN:
+        description: "GitHub token com permissão de push neste repo terraform"
+        required: true
+
+jobs:
+  register:
+    name: "Registrar ${{ inputs.repo_name }} como tipo ${{ inputs.repo_type }}"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repo terraform (IaC central)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/terraform
+          token: ${{ secrets.IAM_WORKFLOW_TOKEN }}
+          ref: main
+
+      - name: Validar tipo do repositório
+        run: |
+          VALID_TYPES="infra backend data"
+          TYPE="${{ inputs.repo_type }}"
+          if ! echo "$VALID_TYPES" | grep -qw "$TYPE"; then
+            echo "::error::Tipo '$TYPE' inválido. Tipos aceitos: $VALID_TYPES"
+            exit 1
+          fi
+          if [ ! -f "iam/policy-templates/${TYPE}.yml" ]; then
+            echo "::error::Template iam/policy-templates/${TYPE}.yml não encontrado."
+            exit 1
+          fi
+
+      - name: Verificar se repo já está registrado
+        id: check
+        run: |
+          if grep -q "name: \"${{ inputs.repo_name }}\"" iam/repos.yml; then
+            echo "already_registered=true" >> $GITHUB_OUTPUT
+            echo "Repo ${{ inputs.repo_name }} já registrado. Nenhuma ação necessária."
+          else
+            echo "already_registered=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Adicionar repo ao repos.yml
+        if: steps.check.outputs.already_registered == 'false'
+        run: |
+          cat >> iam/repos.yml <<EOF
+            - name: "${{ inputs.repo_name }}"
+              type: "${{ inputs.repo_type }}"
+          EOF
+
+      - name: Commit e push
+        if: steps.check.outputs.already_registered == 'false'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add iam/repos.yml
+          git commit -m "iam: register ${{ inputs.repo_name }} as type ${{ inputs.repo_type }}"
+          git push origin main
+        # O push na main dispara iam-sync.yml → terraform apply → role criada automaticamente
